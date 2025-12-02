@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 
 const initialItems = [
@@ -9,7 +10,6 @@ function Logo() {
   return <h1>My Travel List</h1>;
 }
 
-//  ✅ UPDATED Form (Activity 9d)
 function Form({ handleAddItem }) {
   const [description, setDescription] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -25,7 +25,6 @@ function Form({ handleAddItem }) {
       packed: false,
     };
 
-    // use function from App (9d)
     handleAddItem(newItem);
 
     setDescription("");
@@ -59,56 +58,83 @@ function Form({ handleAddItem }) {
   );
 }
 
-//  ✅ UPDATED PackingList (Activity 9b)
-function PackingList({ items }) {
+function Item({ item, handleUpdateItem }) {
+  return (
+    <li>
+      <input
+        type="checkbox"
+        checked={item.packed}
+        onChange={() => handleUpdateItem(item.id)}
+      />
+
+      <span style={item.packed ? { textDecoration: "line-through" } : {}}>
+        {item.quantity} × {item.description}
+      </span>
+    </li>
+  );
+}
+
+function PackingList({ items, handleUpdateItem }) {
   return (
     <div className="list">
       <ul>
         {items.map((item) => (
-          <li key={item.id}>
-            {item.quantity} × {item.description}
-          </li>
+          <Item
+            key={item.id}
+            item={item}
+            handleUpdateItem={handleUpdateItem}
+          />
         ))}
       </ul>
     </div>
   );
 }
 
+// ⭐ UPDATED FOR Activity 12
 function Stats({ items }) {
-  const total = items.length;
-  const packed = items.filter((item) => item.packed).length;
-  const percentage = total === 0 ? 0 : Math.round((packed / total) * 100);
+  // ⭐ NEW — Activity 12a
+  const totalItems = items.length;
+
+  // ⭐ NEW — Activity 12b
+  const packedItems = items.filter((item) => item.packed).length;
+  const percentage =
+    totalItems === 0 ? 0 : Math.round((packedItems / totalItems) * 100);
 
   return (
     <footer className="stats">
       <em>
-        You have {total} items on your list, and you already packed {packed} (
-        {percentage}%)
+        {/* ⭐ NEW Activity 12c */}
+        {percentage === 100 && totalItems > 0
+          ? "You got everything! 🎉"
+          : `You have ${totalItems} items, ${packedItems} packed (${percentage}%).`}
       </em>
     </footer>
   );
 }
 
-//  ✅ UPDATED App (Activities 9a & 9c)
 function App() {
-  // 9a: LIFT items state up to App
   const [items, setItems] = useState(initialItems);
 
-  // 9c: Move handleAddItem to App
   function handleAddItem(item) {
     setItems((prevItems) => [item, ...prevItems]);
+  }
+
+  function handleUpdateItem(id) {
+    setItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === id ? { ...item, packed: !item.packed } : item
+      )
+    );
   }
 
   return (
     <div className="app">
       <Logo />
-
-      {/* 9d: pass handleAddItem to Form */}
       <Form handleAddItem={handleAddItem} />
 
-      {/* 9b: pass items to PackingList */}
-      <PackingList items={items} />
+      <PackingList items={items} handleUpdateItem={handleUpdateItem} />
 
+      {/* ⭐ NEW — Activity 12a: pass items */}
       <Stats items={items} />
     </div>
   );
