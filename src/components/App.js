@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 
 const initialItems = [
@@ -58,7 +57,7 @@ function Form({ handleAddItem }) {
   );
 }
 
-function Item({ item, handleUpdateItem }) {
+function Item({ item, handleUpdateItem, handleDeleteItem }) {   // ⭐ NEW (Activity 10)
   return (
     <li>
       <input
@@ -70,11 +69,19 @@ function Item({ item, handleUpdateItem }) {
       <span style={item.packed ? { textDecoration: "line-through" } : {}}>
         {item.quantity} × {item.description}
       </span>
+
+      {/* ⭐ NEW delete button */}
+      <button
+        onClick={() => handleDeleteItem(item.id)}    // ⭐ NEW
+        style={{ marginLeft: "10px" }}
+      >
+        ❌
+      </button>
     </li>
   );
 }
 
-function PackingList({ items, handleUpdateItem }) {
+function PackingList({ items, handleUpdateItem, handleDeleteItem }) {  // ⭐ NEW
   return (
     <div className="list">
       <ul>
@@ -83,6 +90,7 @@ function PackingList({ items, handleUpdateItem }) {
             key={item.id}
             item={item}
             handleUpdateItem={handleUpdateItem}
+            handleDeleteItem={handleDeleteItem}    // ⭐ NEW
           />
         ))}
       </ul>
@@ -90,12 +98,8 @@ function PackingList({ items, handleUpdateItem }) {
   );
 }
 
-// ⭐ UPDATED FOR Activity 12
 function Stats({ items }) {
-  // ⭐ NEW — Activity 12a
   const totalItems = items.length;
-
-  // ⭐ NEW — Activity 12b
   const packedItems = items.filter((item) => item.packed).length;
   const percentage =
     totalItems === 0 ? 0 : Math.round((packedItems / totalItems) * 100);
@@ -103,7 +107,6 @@ function Stats({ items }) {
   return (
     <footer className="stats">
       <em>
-        {/* ⭐ NEW Activity 12c */}
         {percentage === 100 && totalItems > 0
           ? "You got everything! 🎉"
           : `You have ${totalItems} items, ${packedItems} packed (${percentage}%).`}
@@ -127,14 +130,23 @@ function App() {
     );
   }
 
+  // ⭐ NEW (Activity 10a) delete item using filter
+  function handleDeleteItem(id) {
+    setItems((prevItems) => prevItems.filter((item) => item.id !== id));
+  }
+
   return (
     <div className="app">
       <Logo />
       <Form handleAddItem={handleAddItem} />
 
-      <PackingList items={items} handleUpdateItem={handleUpdateItem} />
+      {/* ⭐ NEW pass delete function */}
+      <PackingList
+        items={items}
+        handleUpdateItem={handleUpdateItem}
+        handleDeleteItem={handleDeleteItem}
+      />
 
-      {/* ⭐ NEW — Activity 12a: pass items */}
       <Stats items={items} />
     </div>
   );
